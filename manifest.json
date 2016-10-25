@@ -4,13 +4,15 @@
     "description": "",
     "version": "1.0",
 
+    "content_scripts": [
+      {
+        "matches": ["http://*/*", "https://*/*"],
+        "js": ["jquery-3.1.1.min.js", "main.js"],
+        "run_at": "document_start"
+      }
+    ],
 
-    "browser_action":{
-	"default_icon": "",
-	"default_popup": ""
-    },
-
-    "permissions":[
+    "permissions": [
 	"https://ajax.googleapis.com/"
     ]
 }
