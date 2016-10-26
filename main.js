@@ -21,10 +21,10 @@ function init_visibility_handler()
 }
 init_visibility_handler();
 
-function on_visibility_change()
+function on_visibility_change(ts)
 {
-    if (document[HIDDEN]) on_blur();
-    else on_focus();
+    if (document[HIDDEN]) on_blur(ts);
+    else on_focus(ts);
 }
 
 var FOCUS_TS = 0;
@@ -58,7 +58,7 @@ var ENTER_TS = 0;
 function on_load()
 {
     ENTER_TS = now();
-    on_focus(ENTER_TS);
+    on_visibility_change(ENTER_TS);
 };
 window.onload = on_load();
 on_load();
@@ -80,6 +80,8 @@ function on_leave()
         data: JSON.stringify(data),
         dataType: "json"
     });
+
+    // return JSON.stringify(data);
 };
 window.onbeforeunload = on_leave;
 
