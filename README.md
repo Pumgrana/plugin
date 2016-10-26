@@ -2,8 +2,8 @@
 
 ### Install
 Menu -> Parameter -> Extensions  
-> Load an unpacked extension  
-> Select this folder  
+- Load an unpacked extension  
+- Select this folder  
 
 ### Update
 Menu -> Parameter -> Extensions  
