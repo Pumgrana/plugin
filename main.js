@@ -68,8 +68,8 @@ function on_leave()
     var leave_ts = now();
     var focus_elapsed_time = on_blur(leave_ts);
     var data = { "origin": document.referrer,
-                 "enter_ts": ENTER_TS,
-                 "leave_ts": leave_ts,
+                 "enter_ts": date_string(ENTER_TS),
+                 "leave_ts": date_string(leave_ts),
                  "focus_elasped_time": focus_elapsed_time,
                  "total_elasped_time": leave_ts - ENTER_TS,
                  "url": window.location.href };
@@ -95,6 +95,27 @@ function now()
     return new Date().getTime();
 };
 
-function post()
+function stringify(number)
 {
+    if (number < 10) return "0"+ number;
+    return number.toString();
+}
+
+function date_string(ts)
+{
+    var date = new Date(ts);
+    var tz = new Date().getTimezoneOffset();
+    var sign = "-";
+    if (tz < 0)
+    {
+        tz = -tz;
+        sign = "+"
+    }
+    var tz_min = tz % 60;
+    var tz_hour = tz / 60;
+    var str_tz = stringify(tz_hour) +":"+ stringify(tz_min);
+    date.setMinutes(date.getMinutes() + tz_min);
+    date.setHours(date.getHours() + tz_hour);
+    var iso = date.toISOString().slice(0, -1) + sign + str_tz;
+    return iso
 }
