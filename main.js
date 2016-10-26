@@ -68,8 +68,8 @@ function on_leave()
     var leave_ts = now();
     var focus_elapsed_time = on_blur(leave_ts);
     var data = { "origin": document.referrer,
-                 "enter_ts": date_string(ENTER_TS),
-                 "leave_ts": date_string(leave_ts),
+                 "enter_date": date_string(ENTER_TS),
+                 "leave_date": date_string(leave_ts),
                  "focus_elasped_time": focus_elapsed_time,
                  "total_elasped_time": leave_ts - ENTER_TS,
                  "url": window.location.href };
