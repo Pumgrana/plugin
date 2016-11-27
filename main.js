@@ -59,7 +59,9 @@ function on_load()
 {
   ENTER_TS = now();
   on_visibility_change(ENTER_TS);
+
   setTimeout(get_search, 2000);
+  setTimeout(link_listener, 2000);
 };
 window.onload = on_load();
 on_load();
@@ -68,7 +70,8 @@ function on_leave()
 {
   var leave_ts = now();
   var focus_elapsed_time = on_blur(leave_ts);
-  var data = { "origin": document.referrer,
+  var data = { "origin_url": document.referrer,
+               "target_url": TARGET_URL,
                "search": SEARCH_VALUE,
                "enter_date": date_string(ENTER_TS),
                "leave_date": date_string(leave_ts),
@@ -83,6 +86,7 @@ function on_leave()
     dataType: "json"
   });
 
+  // console.log(data);
   // return JSON.stringify(data);
 };
 window.onbeforeunload = on_leave;
@@ -93,7 +97,7 @@ window.onbeforeunload = on_leave;
  *******************************************************************************/
 
 var SEARCH_INPUTS = [
-  {"block":"input", "type":"search", "name":null},
+  {"block":"input", "type":"search"},
   {"block":"input", "type":"text",   "name":"q"},
   {"block":"input", "type":"text",   "name":"s"},
   {"block":"input", "type":"text",   "name":"query"},
@@ -114,6 +118,28 @@ function get_search()
   return SEARCH_VALUE;
 }
 
+
+/******************************************************************************
+ ****************************** LINKS
+ *******************************************************************************/
+
+function href(link)
+{
+  return function() { TARGET_URL=link.href; }
+}
+
+var TARGET_URL=null;
+function link_listener()
+{
+  var links = finder([{"block":"a"}])
+
+  var i = 0;
+  while (i < links.length)
+  {
+    $(links[i]).on("click", href(links[i]));
+    i += 1;
+  }
+}
 
 /******************************************************************************
  ****************************** UTILS
