@@ -1,4 +1,30 @@
 /******************************************************************************
+ ****************************** META MANAGEMENT
+ *******************************************************************************/
+
+var DESCRIPTION_ELEMENTS = [
+  {"block":"meta", "name":"description"}
+]
+
+var IMAGE_ELEMENTS = [
+  {"block":"meta", "name":"og:image"},
+  {"block":"meta", "name":"twitter:image:src"}
+]
+
+function meta()
+{
+  var lang = safe($("html")[0], "lang")
+  var title = safe($("title")[0], "text");
+  var desc = safe(finder(DESCRIPTION_ELEMENTS)[0], "content");
+  var img = safe(finder(IMAGE_ELEMENTS)[0], "content");
+
+  return { "lang": lang,
+           "title": title,
+           "description": desc,
+           "image": img }
+}
+
+/******************************************************************************
  ****************************** FOCUS MANAGEMENT
  *******************************************************************************/
 
@@ -70,8 +96,14 @@ function on_leave()
 {
   var leave_ts = now();
   var focus_elapsed_time = on_blur(leave_ts);
+
+  var meta = meta();
   var data = { "origin_url": document.referrer,
                "target_url": TARGET_URL,
+               "lang": meta["lang"],
+               "title": meta["title"],
+               "description": meta["description"],
+               "image": meta["image"],
                "search": SEARCH_VALUE,
                "enter_date": date_string(ENTER_TS),
                "leave_date": date_string(leave_ts),
@@ -182,11 +214,22 @@ function finder(fields)
   {
     var field = fields[i];
     var sep = (query.length > 0) ? ", " : "";
-    var type = (field.type) ? "[type='"+ field.type +"']" : "";
-    var name = (field.name) ? "[name='"+ field.name +"']" : "";
 
-    query += sep + field.block + type + name;
+    var args = "";
+    for (var key in field)
+    {
+      if (key != "block") { args += "["+ key +"='"+ field[key] +"']" }
+    }
+
+    query += sep + field.block + args;
   }
 
   return $(query);
+}
+
+function safe(element, key)
+{
+  if (typeof element == "object" && element[key] != undefined)
+    return element[key];
+  return element;
 }
