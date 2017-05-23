@@ -1,6 +1,9 @@
 /******************************************************************************
  ****************************** META MANAGEMENT
- *******************************************************************************/
+ ******************************************************************************/
+
+var host = "http://localhost:3000"
+var auth = {"email": "test@test.com", "password": "12345678"}
 
 var DESCRIPTION_ELEMENTS = [
   {"block":"meta", "name":"description"}
@@ -26,7 +29,7 @@ function meta()
 
 /******************************************************************************
  ****************************** FOCUS MANAGEMENT
- *******************************************************************************/
+ ******************************************************************************/
 
 var HIDDEN = "hidden";
 function init_visibility_handler()
@@ -81,13 +84,18 @@ function on_blur(ts)
 *******************************************************************************/
 
 var ENTER_TS = 0;
+var LOADED = false
 function on_load()
 {
+  if (LOADED == true) return null;
+  LOADED = true
+
   ENTER_TS = now();
   on_visibility_change(ENTER_TS);
 
-  setTimeout(get_search, 2000);
-  setTimeout(link_listener, 2000);
+  setTimeout(get_search, 500);
+  setTimeout(link_listener, 500);
+  setTimeout(on_leave, 1000);
 };
 window.onload = on_load();
 on_load();
@@ -97,29 +105,28 @@ function on_leave()
   var leave_ts = now();
   var focus_elapsed_time = on_blur(leave_ts);
 
-  var meta = meta();
-  var data = { "origin_url": document.referrer,
+  var m = meta();
+  var data = { "url": window.location.href,
+               "origin_url": document.referrer,
                "target_url": TARGET_URL,
-               "lang": meta["lang"],
-               "title": meta["title"],
-               "description": meta["description"],
-               "image": meta["image"],
+               "lang": m["lang"],
+               "title": m["title"],
+               "description": m["description"],
+               "image": m["image"],
                "search": SEARCH_VALUE,
                "enter_date": date_string(ENTER_TS),
                "leave_date": date_string(leave_ts),
                "focus_elasped_time": focus_elapsed_time,
-               "total_elasped_time": leave_ts - ENTER_TS,
-               "url": window.location.href };
+               "total_elasped_time": leave_ts - ENTER_TS };
 
-  $.ajax({
+  var headers = signin()
+  var ret = $.ajax({
     type: "POST",
-    url: "http://api.pumgrana.com/historical",
-    data: JSON.stringify(data),
-    dataType: "json"
+    url: host + "/histories",
+    headers: headers,
+    contentType: 'application/json; charset=UTF-8',
+    data: JSON.stringify(data)
   });
-
-  // console.log(data);
-  // return JSON.stringify(data);
 };
 window.onbeforeunload = on_leave;
 
@@ -153,7 +160,7 @@ function get_search()
 
 /******************************************************************************
  ****************************** LINKS
- *******************************************************************************/
+ ******************************************************************************/
 
 function href(link)
 {
@@ -174,8 +181,28 @@ function link_listener()
 }
 
 /******************************************************************************
+ ****************************** AUTHENTICATION
+ ******************************************************************************/
+
+function signin()
+{
+  var ret = $.ajax({
+    type: "POST",
+    url: host + "/auth/sign_in",
+    data: JSON.stringify(auth),
+    contentType: 'application/json; charset=UTF-8',
+    async: false
+  });
+
+  return {"access-token": ret.getResponseHeader("access-token"),
+          "client": ret.getResponseHeader("client"),
+          "uid": ret.getResponseHeader("uid"),
+          "expiry": ret.getResponseHeader("expiry")}
+}
+
+/******************************************************************************
  ****************************** UTILS
- *******************************************************************************/
+ ******************************************************************************/
 
 function now()
 {
